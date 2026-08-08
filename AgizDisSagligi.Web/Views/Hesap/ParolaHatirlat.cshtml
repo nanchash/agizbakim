@@ -1,0 +1,31 @@
+@model AgizDisSagligi.Web.Models.ParolaHatirlatViewModel
+@{
+    ViewData["Title"] = "Parola Hatırlatma";
+}
+
+<h1>Parolamı Unuttum</h1>
+
+@if (ViewBag.Hata != null)
+{
+    <div class="alert alert-danger">@ViewBag.Hata</div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="ParolaHatirlatDogrula" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label class="form-label">Mail</label>
+                <input asp-for="Mail" type="email" class="form-control" />
+                <span asp-validation-for="Mail" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Devam Et</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

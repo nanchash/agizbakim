@@ -1,0 +1,273 @@
+@model AgizDisSagligi.Web.Models.AgizDisSagligiViewModel
+@{
+    ViewData["Title"] = "Ağız ve Diş Sağlığı";
+}
+
+<h1>Ağız ve Diş Sağlığı</h1>
+
+@if (Model.RastgeleOneri != null)
+{
+    <div class="alert alert-info">
+        <strong>Öneri:</strong> @Model.RastgeleOneri.Metin
+    </div>
+}
+
+<div id="mesajAlani"></div>
+
+<ul class="nav nav-tabs">
+    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#durum">Durum</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#hedef">Hedef</a></li>
+</ul>
+
+<div class="tab-content mt-3">
+    <div class="tab-pane active" id="durum">
+        <h3>Durum Kaydı Ekle</h3>
+        <form id="durumForm" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Hedef</label>
+                <select id="durumHedefId" name="HedefId" class="form-select" required>
+                    <option value="">-- Hedef Seçin --</option>
+                    @foreach (var hedef in Model.Hedefler)
+                    {
+                        <option value="@hedef.Id">@hedef.Baslik</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Tarih</label>
+                <input type="date" id="durumTarih" name="Tarih" class="form-control" required />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Saat</label>
+                <input type="time" id="durumSaat" name="Saat" class="form-control" required />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Süre (dk)</label>
+                <input type="number" id="durumSure" name="Sure" class="form-control" min="1" required />
+            </div>
+            <div class="col-md-2 form-check mt-4">
+                <input type="checkbox" id="durumUygulandi" name="Uygulandi" class="form-check-input" />
+                <label class="form-check-label" for="durumUygulandi">Uygulandı</label>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+            </div>
+        </form>
+
+        <hr />
+
+        <h3>Not Ekle</h3>
+        <form id="notForm" class="row g-3" enctype="multipart/form-data">
+            <div class="col-md-6">
+                <label class="form-label">Açıklama</label>
+                <textarea id="notAciklama" name="Aciklama" class="form-control" required></textarea>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Görsel</label>
+                <input type="file" id="notGorsel" name="Gorsel" class="form-control" accept="image/*" />
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Notu Kaydet</button>
+            </div>
+        </form>
+
+        <div class="row mt-3" id="notlarListesi">
+            @foreach (var not in Model.Notlar)
+            {
+                <div class="col-md-3 mb-3">
+                    <div class="card">
+                        @if (!string.IsNullOrEmpty(not.GorselYolu))
+                        {
+                            <img src="@not.GorselYolu" class="card-img-top" alt="Not görseli" />
+                        }
+                        <div class="card-body">
+                            <p class="card-text">@not.Aciklama</p>
+                            <small class="text-muted">@not.EklenmeTarihi.ToString("dd.MM.yyyy HH:mm")</small>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="tab-pane" id="hedef">
+        <h3>Hedef Ekle</h3>
+        <form id="hedefForm" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Başlık</label>
+                <input type="text" id="hedefBaslik" name="Baslik" class="form-control" required />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Açıklama</label>
+                <input type="text" id="hedefAciklama" name="Aciklama" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Periyot Zaman</label>
+                <select id="hedefPeriyotZaman" name="PeriyotZaman" class="form-select">
+                    <option value="Günde">Günde</option>
+                    <option value="Haftada">Haftada</option>
+                    <option value="Ayda">Ayda</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Periyot Sıklık</label>
+                <input type="number" id="hedefPeriyotSiklik" name="PeriyotSiklik" class="form-control" min="1" value="1" required />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Önem Derecesi</label>
+                <select id="hedefOnemDerecesi" name="OnemDerecesi" class="form-select">
+                    <option value="1">Düşük</option>
+                    <option value="2">Orta</option>
+                    <option value="3">Yüksek</option>
+                </select>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Hedef Ekle</button>
+            </div>
+        </form>
+
+        <hr />
+
+        <table class="table mt-3" id="hedeflerTablosu">
+            <thead>
+                <tr>
+                    <th>Başlık</th>
+                    <th>Açıklama</th>
+                    <th>Periyot</th>
+                    <th>Önem</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var hedef in Model.Hedefler)
+                {
+                    <tr id="hedefSatir-@hedef.Id">
+                        <td>@hedef.Baslik</td>
+                        <td>@hedef.Aciklama</td>
+                        <td>@hedef.PeriyotSiklik @hedef.PeriyotZaman</td>
+                        <td>@hedef.OnemDerecesi</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-danger hedef-sil-btn" data-id="@hedef.Id">Sil</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="silmeOnayModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Silme Onayı</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Bu hedefe ait durum kayıtları var. Yine de silmek istiyor musunuz?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                <button type="button" class="btn btn-danger" id="silmeOnayBtn">Evet, Sil</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var silinecekHedefId = null;
+        var silmeModal = new bootstrap.Modal(document.getElementById('silmeOnayModal'));
+
+        function mesajGoster(basarili, mesaj) {
+            var sinif = basarili ? 'alert-success' : 'alert-danger';
+            $('#mesajAlani').html('<div class="alert ' + sinif + '">' + mesaj + '</div>');
+        }
+
+        $('#hedefForm').on('submit', function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: '@Url.Action("HedefEkle", "AgizDisSagligi")',
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (sonuc) {
+                    mesajGoster(sonuc.basarili, sonuc.mesaj);
+                    if (sonuc.basarili) {
+                        location.reload();
+                    }
+                }
+            });
+        });
+
+        $('#durumForm').on('submit', function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: '@Url.Action("DurumKaydiEkle", "AgizDisSagligi")',
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (sonuc) {
+                    mesajGoster(sonuc.basarili, sonuc.mesaj);
+                    if (sonuc.basarili) {
+                        $('#durumForm')[0].reset();
+                    }
+                }
+            });
+        });
+
+        $('#notForm').on('submit', function (e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            $.ajax({
+                url: '@Url.Action("NotEkle", "AgizDisSagligi")',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (sonuc) {
+                    mesajGoster(sonuc.basarili, sonuc.mesaj);
+                    if (sonuc.basarili) {
+                        location.reload();
+                    }
+                }
+            });
+        });
+
+        $('.hedef-sil-btn').on('click', function () {
+            var id = $(this).data('id');
+            $.ajax({
+                url: '@Url.Action("HedefinDurumKaydiVarMi", "AgizDisSagligi")',
+                type: 'POST',
+                data: { id: id },
+                success: function (sonuc) {
+                    if (sonuc.varMi) {
+                        silinecekHedefId = id;
+                        silmeModal.show();
+                    } else {
+                        hedefSil(id);
+                    }
+                }
+            });
+        });
+
+        $('#silmeOnayBtn').on('click', function () {
+            if (silinecekHedefId != null) {
+                hedefSil(silinecekHedefId);
+                silmeModal.hide();
+            }
+        });
+
+        function hedefSil(id) {
+            $.ajax({
+                url: '@Url.Action("HedefSil", "AgizDisSagligi")',
+                type: 'POST',
+                data: { id: id },
+                success: function (sonuc) {
+                    mesajGoster(sonuc.basarili, sonuc.mesaj);
+                    if (sonuc.basarili) {
+                        $('#hedefSatir-' + id).remove();
+                    }
+                }
+            });
+        }
+    </script>
+}

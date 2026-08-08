@@ -1,0 +1,50 @@
+@model AgizDisSagligi.Web.Models.KayitViewModel
+@{
+    ViewData["Title"] = "Kayıt Ol";
+}
+
+<h1>Kayıt Ol</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Kayit" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label class="form-label">Mail</label>
+                <input asp-for="Mail" type="email" class="form-control" />
+                <span asp-validation-for="Mail" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Parola</label>
+                <input asp-for="Parola" type="password" class="form-control" />
+                <span asp-validation-for="Parola" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Parola Tekrar</label>
+                <input asp-for="ParolaTekrar" type="password" class="form-control" />
+                <span asp-validation-for="ParolaTekrar" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Ad Soyad</label>
+                <input asp-for="AdSoyad" class="form-control" />
+                <span asp-validation-for="AdSoyad" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Doğum Tarihi</label>
+                <input asp-for="DogumTarihi" type="date" class="form-control" />
+                <span asp-validation-for="DogumTarihi" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Kayıt Ol</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

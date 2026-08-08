@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="AgizDisSagligi.Business/AgizDisSagligi.Business.csproj" />
+  <Project Path="AgizDisSagligi.DataAccess/AgizDisSagligi.DataAccess.csproj" />
+  <Project Path="AgizDisSagligi.Entities/AgizDisSagligi.Entities.csproj" />
+  <Project Path="AgizDisSagligi.Web/AgizDisSagligi.Web.csproj" />
+</Solution>

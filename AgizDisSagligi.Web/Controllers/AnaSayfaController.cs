@@ -1,0 +1,42 @@
+using System.Security.Claims;
+using AgizDisSagligi.Business;
+using AgizDisSagligi.Web.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace AgizDisSagligi.Web.Controllers;
+
+[Authorize]
+public class AnaSayfaController : Controller
+{
+    private readonly HedefServisi _hedefServisi;
+    private readonly DurumKaydiServisi _durumKaydiServisi;
+    private readonly OneriServisi _oneriServisi;
+
+    public AnaSayfaController(HedefServisi hedefServisi, DurumKaydiServisi durumKaydiServisi, OneriServisi oneriServisi)
+    {
+        _hedefServisi = hedefServisi;
+        _durumKaydiServisi = durumKaydiServisi;
+        _oneriServisi = oneriServisi;
+    }
+
+    public IActionResult Index()
+    {
+        var kullaniciId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        var hedefler = _hedefServisi.ListeleKullaniciIle(kullaniciId);
+
+        var bugunTamamlanan = hedefler
+            .SelectMany(h => _durumKaydiServisi.ListeleHedefIle(h.Id))
+            .Count(d => d.Tarih.Date == DateTime.Now.Date && d.Uygulandi);
+
+        var model = new AnaSayfaViewModel
+        {
+            AdSoyad = User.Identity.Name,
+            ToplamHedefSayisi = hedefler.Count,
+            BugunTamamlananSayisi = bugunTamamlanan,
+            GunlukOneri = _oneriServisi.RastgeleGetir()
+        };
+
+        return View(model);
+    }
+}

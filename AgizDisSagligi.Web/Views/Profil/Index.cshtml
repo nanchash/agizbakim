@@ -1,0 +1,20 @@
+@model AgizDisSagligi.Web.Models.ProfilViewModel
+@{
+    ViewData["Title"] = "Profil";
+}
+
+<h1>Profil</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Ad Soyad</dt>
+    <dd class="col-sm-9">@Model.AdSoyad</dd>
+
+    <dt class="col-sm-3">Mail</dt>
+    <dd class="col-sm-9">@Model.Mail</dd>
+
+    <dt class="col-sm-3">Doğum Tarihi</dt>
+    <dd class="col-sm-9">@Model.DogumTarihi.ToString("dd.MM.yyyy")</dd>
+
+    <dt class="col-sm-3">Kayıt Tarihi</dt>
+    <dd class="col-sm-9">@Model.KayitTarihi.ToString("dd.MM.yyyy")</dd>
+</dl>

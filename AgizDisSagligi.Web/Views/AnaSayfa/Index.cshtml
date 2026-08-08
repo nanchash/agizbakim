@@ -1,0 +1,34 @@
+@model AgizDisSagligi.Web.Models.AnaSayfaViewModel
+@{
+    ViewData["Title"] = "Ana Sayfa";
+}
+
+<h1>Merhaba, @Model.AdSoyad</h1>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card text-center mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Toplam Hedef</h5>
+                <p class="display-6">@Model.ToplamHedefSayisi</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Bugün Tamamlanan</h5>
+                <p class="display-6">@Model.BugunTamamlananSayisi</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.GunlukOneri != null)
+{
+    <div class="alert alert-info">
+        <strong>Günün Önerisi:</strong> @Model.GunlukOneri.Metin
+    </div>
+}
+
+<a asp-controller="AgizDisSagligi" asp-action="Index" class="btn btn-primary">Ağız ve Diş Sağlığı Sayfasına Git</a>
