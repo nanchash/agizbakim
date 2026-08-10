@@ -8,6 +8,8 @@ public class Kullanici
     public string AdSoyad { get; set; }
     public DateTime DogumTarihi { get; set; }
     public DateTime KayitTarihi { get; set; }
+    public string? ParolaSifirlamaKodu { get; set; }
+    public DateTime? ParolaSifirlamaKoduGecerlilik { get; set; }
 
     public List<Hedef> Hedefler { get; set; }
     public List<Not> Notlar { get; set; }

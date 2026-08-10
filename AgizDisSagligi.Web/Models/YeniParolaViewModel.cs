@@ -7,6 +7,9 @@ public class YeniParolaViewModel
     [Required]
     public string Mail { get; set; }
 
+    [Required(ErrorMessage = "Doğrulama kodu zorunludur.")]
+    public string Kod { get; set; }
+
     [Required(ErrorMessage = "Yeni parola zorunludur.")]
     [DataType(DataType.Password)]
     public string YeniParola { get; set; }

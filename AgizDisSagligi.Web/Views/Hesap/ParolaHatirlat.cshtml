@@ -6,7 +6,7 @@
     <div class="auth-kart">
         <div class="auth-simge">🔑</div>
         <h1>Parolamı Unuttum</h1>
-        <p class="auth-alt-metin">Kayıtlı mail adresinizi girin, yeni parola belirleyelim.</p>
+        <p class="auth-alt-metin">Kayıtlı mail adresinize gönderilecek doğrulama koduyla yeni parola belirleyin.</p>
 
         <div id="mesajAlani"></div>
 
@@ -15,7 +15,15 @@
                 <label class="form-label">Mail</label>
                 <input id="mailInput" type="email" class="form-control" placeholder="ornek@mail.com" required />
             </div>
-            <button type="button" id="dogrulaBtn" class="btn btn-primary w-100">Devam Et</button>
+            <button type="button" id="dogrulaBtn" class="btn btn-primary w-100">Doğrulama Kodu Gönder</button>
+        </div>
+
+        <div id="kodAlani" class="d-none">
+            <div class="mb-4">
+                <label class="form-label">Doğrulama Kodu <span class="form-text">(mail adresinize gönderildi)</span></label>
+                <input id="kodInput" type="text" inputmode="numeric" maxlength="6" class="form-control" placeholder="6 haneli kod" required />
+            </div>
+            <button type="button" id="kodDogrulaBtn" class="btn btn-primary w-100">Kodu Doğrula</button>
         </div>
 
         <div id="parolaAlanlari" class="d-none">
@@ -40,6 +48,7 @@
 @section Scripts {
     <script>
         var dogrulanmisMail = null;
+        var dogrulanmisKod = null;
 
         function mesajGoster(basarili, mesaj) {
             var sinif = basarili ? 'alert-success' : 'alert-danger';
@@ -62,15 +71,45 @@
                     $('#dogrulaBtn').prop('disabled', false);
                     if (sonuc.basarili) {
                         dogrulanmisMail = mail;
-                        $('#mesajAlani').empty();
+                        mesajGoster(true, sonuc.mesaj);
                         $('#mailAlani').addClass('d-none');
-                        $('#parolaAlanlari').removeClass('d-none');
+                        $('#kodAlani').removeClass('d-none');
                     } else {
                         mesajGoster(false, sonuc.mesaj);
                     }
                 },
                 error: function () {
                     $('#dogrulaBtn').prop('disabled', false);
+                    mesajGoster(false, 'Bir şeyler ters gitti. Lütfen tekrar deneyin.');
+                }
+            });
+        });
+
+        $('#kodDogrulaBtn').on('click', function () {
+            var kod = $('#kodInput').val();
+            if (!kod) {
+                mesajGoster(false, 'Doğrulama kodu zorunludur.');
+                return;
+            }
+
+            $('#kodDogrulaBtn').prop('disabled', true);
+            $.ajax({
+                url: '@Url.Action("ParolaSifirlamaKoduDogrula", "Hesap")',
+                type: 'POST',
+                data: { mail: dogrulanmisMail, kod: kod },
+                success: function (sonuc) {
+                    $('#kodDogrulaBtn').prop('disabled', false);
+                    if (sonuc.basarili) {
+                        dogrulanmisKod = kod;
+                        $('#mesajAlani').empty();
+                        $('#kodAlani').addClass('d-none');
+                        $('#parolaAlanlari').removeClass('d-none');
+                    } else {
+                        mesajGoster(false, sonuc.mesaj);
+                    }
+                },
+                error: function () {
+                    $('#kodDogrulaBtn').prop('disabled', false);
                     mesajGoster(false, 'Bir şeyler ters gitti. Lütfen tekrar deneyin.');
                 }
             });
@@ -88,7 +127,7 @@
             $.ajax({
                 url: '@Url.Action("YeniParolaBelirle", "Hesap")',
                 type: 'POST',
-                data: { Mail: dogrulanmisMail, YeniParola: yeniParola, YeniParolaTekrar: yeniParolaTekrar },
+                data: { Mail: dogrulanmisMail, Kod: dogrulanmisKod, YeniParola: yeniParola, YeniParolaTekrar: yeniParolaTekrar },
                 success: function (sonuc) {
                     $('#guncelleBtn').prop('disabled', false);
                     if (sonuc.basarili) {

@@ -81,11 +81,15 @@ public class HesapController : Controller
             return Json(new { basarili = false, mesaj = hata });
         }
 
-        var kullanici = _kullaniciServisi.MailIleBul(model.Mail);
-        if (kullanici == null)
-            return Json(new { basarili = false, mesaj = "Bu mail adresine kayıtlı kullanıcı bulunamadı." });
+        var (basarili, mesaj) = _kullaniciServisi.ParolaSifirlamaKoduGonder(model.Mail);
+        return Json(new { basarili, mesaj });
+    }
 
-        return Json(new { basarili = true });
+    [HttpPost]
+    public IActionResult ParolaSifirlamaKoduDogrula(string mail, string kod)
+    {
+        var (basarili, mesaj) = _kullaniciServisi.ParolaSifirlamaKoduDogrula(mail, kod);
+        return Json(new { basarili, mesaj });
     }
 
     [HttpPost]
@@ -97,7 +101,7 @@ public class HesapController : Controller
             return Json(new { basarili = false, mesaj = hata });
         }
 
-        var (basarili, mesaj) = _kullaniciServisi.ParolaSifirla(model.Mail, model.YeniParola, model.YeniParolaTekrar);
+        var (basarili, mesaj) = _kullaniciServisi.ParolaSifirla(model.Mail, model.Kod, model.YeniParola, model.YeniParolaTekrar);
         return Json(new { basarili, mesaj });
     }
 }
