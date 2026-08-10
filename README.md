@@ -19,7 +19,8 @@ Kullanıcı yönetimi (kayıt, giriş, parola sıfırlama, oturum yönetimi) ü�
 ### Hesap Yönetimi
 - Mail formatı, parola karmaşıklığı (min. 8 karakter, büyük/küçük harf, rakam) ve mail tekilliği kontrolleriyle kayıt
 - Cookie tabanlı oturum açma; hatalı mail ve hatalı parola için ayrı ayrı geri bildirim
-- Aynı sayfa üzerinde AJAX ile ilerleyen parola sıfırlama akışı (mail doğrulama → yeni parola)
+- Aynı sayfa üzerinde AJAX ile ilerleyen, mail'e gönderilen tek kullanımlık doğrulama koduyla korunan parola sıfırlama akışı
+- Profil sayfasından parola değiştirirken mevcut parolanın doğrulanması zorunlu
 - AES-256 ile şifrelenmiş parola saklama
 
 ### Hedef ve Alışkanlık Takibi
@@ -97,9 +98,9 @@ Varlık-ilişki (ER) diyagramı ve tablo açıklamaları için [docs/veritabani-
 
 ## Yapılandırma
 
-### Mail Ayarları (isteğe bağlı)
+### Mail Ayarları
 
-Kayıt sonrası hoş geldin maili göndermek için `MailAyarlari` bölümünün (SMTP sunucu, gönderici mail/adı, uygulama şifresi) doldurulması gerekir. Boş bırakılırsa mail gönderimi sessizce atlanır; kayıt/giriş akışı bundan etkilenmez.
+`MailAyarlari` bölümü (SMTP sunucu, gönderici mail/adı, uygulama şifresi) iki yerde kullanılır: kayıt sonrası hoş geldin maili ve **parola sıfırlama doğrulama kodu**. Hoş geldin maili boş ayarla sessizce atlanır ve kayıt akışını etkilemez; ancak parola sıfırlama akışının çalışabilmesi için mail ayarlarının dolu olması gerekir — aksi halde doğrulama kodu gönderilemez ve kullanıcı parolasını sıfırlayamaz.
 
 Gerçek bir Gmail hesabıyla göndermek için bir **App Password (Uygulama Şifresi)** gerekir. Bu değer `appsettings.json`'a değil, repoya commit edilmeyen [.NET User Secrets](https://learn.microsoft.com/aspnet/core/security/app-secrets)'a girilmelidir:
 
@@ -118,4 +119,6 @@ User Secrets yalnızca `Development` ortamında ve yalnızca bu makinede geçerl
 
 - Parolalar veritabanında düz metin olarak değil, AES-256 ile şifrelenmiş şekilde saklanır (`SifrelemeServisi`).
 - Kimlik doğrulama tamamen özel yazılmıştır; üçüncü parti bir Identity/IdentityServer kütüphanesi kullanılmaz.
+- Parola sıfırlama, sadece mail adresinin var olup olmadığını kontrol etmekle yetinmez: mail sahipliğini doğrulamak için 6 haneli, 15 dakika geçerli, tek kullanımlık bir kod gönderilir; kod hem doğrulama adımında hem parola değiştirme adımında sunucu tarafında kontrol edilir ve kullanıldıktan sonra geçersiz kılınır (replay saldırılarına kapalı).
+- Profil sayfasından parola değiştirmek, oturumu ele geçiren biri tarafından mevcut parola bilinmeden yapılamaz; her parola değişikliği mevcut parolanın doğru girilmesini şart koşar.
 - Gerçek kimlik bilgileri (SMTP şifresi vb.) yalnızca .NET User Secrets ile yerel olarak tutulur, hiçbir zaman kaynak koduna veya `appsettings.json`'a yazılmaz.

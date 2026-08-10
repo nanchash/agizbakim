@@ -15,6 +15,8 @@ erDiagram
         string AdSoyad
         datetime DogumTarihi
         datetime KayitTarihi
+        string ParolaSifirlamaKodu
+        datetime ParolaSifirlamaKoduGecerlilik
     }
 
     HEDEF {
@@ -55,7 +57,7 @@ erDiagram
 
 | Tablo | Açıklama | İlişki |
 |---|---|---|
-| `Kullanicilar` | Kayıtlı kullanıcılar, mail alanı benzersiz (unique index) | 1 kullanıcı → N hedef, 1 kullanıcı → N not |
+| `Kullanicilar` | Kayıtlı kullanıcılar, mail alanı benzersiz (unique index); `ParolaSifirlamaKodu`/`Gecerlilik` parola sıfırlama doğrulama kodunu ve son geçerlilik tarihini tutar (boşsa aktif bir sıfırlama isteği yoktur) | 1 kullanıcı → N hedef, 1 kullanıcı → N not |
 | `Hedefler` | Kullanıcının belirlediği alışkanlık hedefleri (periyot + önem derecesi) | `KullaniciId` → `Kullanicilar.Id` |
 | `DurumKayitlari` | Bir hedefin belirli tarih/saatte uygulanıp uygulanmadığı kaydı | `HedefId` → `Hedefler.Id` |
 | `Notlar` | Kullanıcının serbest metin + görselle eklediği gözlemler | `KullaniciId` → `Kullanicilar.Id` |
