@@ -90,7 +90,7 @@ public class KullaniciServisi
         return (true, "Parolanız güncellendi.");
     }
 
-    public (bool basarili, string mesaj) ProfilGuncelle(int kullaniciId, string mail, string adSoyad, DateTime dogumTarihi, string? yeniParola, string? yeniParolaTekrar)
+    public (bool basarili, string mesaj) ProfilGuncelle(int kullaniciId, string mail, string adSoyad, DateTime dogumTarihi, string? mevcutParola, string? yeniParola, string? yeniParolaTekrar)
     {
         if (!Regex.IsMatch(mail, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
             return (false, "Geçerli bir mail adresi giriniz.");
@@ -108,6 +108,9 @@ public class KullaniciServisi
 
         if (!string.IsNullOrEmpty(yeniParola) || !string.IsNullOrEmpty(yeniParolaTekrar))
         {
+            if (string.IsNullOrEmpty(mevcutParola) || _sifreleme.SifreCoz(kullanici.ParolaSifreli) != mevcutParola)
+                return (false, "Mevcut parolanız hatalı.");
+
             if (yeniParola == null || yeniParola.Length < 8 || !Regex.IsMatch(yeniParola, @"[A-Z]") || !Regex.IsMatch(yeniParola, @"[a-z]") || !Regex.IsMatch(yeniParola, @"[0-9]"))
                 return (false, "Parola en az 8 karakter olmalı, büyük-küçük harf ve rakam içermelidir.");
 

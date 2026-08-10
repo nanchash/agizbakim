@@ -69,7 +69,7 @@ public class ProfilController : Controller
             return View("Index", yeniden);
         }
 
-        var (basarili, mesaj) = _kullaniciServisi.ProfilGuncelle(kullaniciId, model.Mail, model.AdSoyad, model.DogumTarihi, model.YeniParola, model.YeniParolaTekrar);
+        var (basarili, mesaj) = _kullaniciServisi.ProfilGuncelle(kullaniciId, model.Mail, model.AdSoyad, model.DogumTarihi, model.MevcutParola, model.YeniParola, model.YeniParolaTekrar);
         if (!basarili)
         {
             ModelState.AddModelError("", mesaj);

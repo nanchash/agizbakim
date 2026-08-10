@@ -91,10 +91,16 @@
                 <div class="form-text">Büyük-küçük harf ve rakam içermelidir.</div>
             </div>
 
-            <div class="mb-4">
+            <div class="mb-3">
                 <label class="form-label">Yeni Parola Tekrar</label>
                 <input asp-for="YeniParolaTekrar" type="password" class="form-control" />
                 <span asp-validation-for="YeniParolaTekrar" class="text-danger"></span>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Mevcut Parola <span class="form-text">(parola değiştirmek için zorunlu)</span></label>
+                <input asp-for="MevcutParola" type="password" class="form-control" autocomplete="current-password" />
+                <span asp-validation-for="MevcutParola" class="text-danger"></span>
             </div>
 
             <div class="text-muted small mb-3">Kayıt tarihi: @Model.KayitTarihi.ToString("dd.MM.yyyy")</div>

@@ -17,6 +17,9 @@ public class ProfilViewModel
     public DateTime DogumTarihi { get; set; }
 
     [DataType(DataType.Password)]
+    public string? MevcutParola { get; set; }
+
+    [DataType(DataType.Password)]
     public string? YeniParola { get; set; }
 
     [DataType(DataType.Password)]
