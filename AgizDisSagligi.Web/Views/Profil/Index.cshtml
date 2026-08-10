@@ -8,6 +8,11 @@
     <h1 class="h3 mb-0">Profil</h1>
 </div>
 
+@if (TempData["Mesaj"] != null)
+{
+    <div class="alert alert-success">@TempData["Mesaj"]</div>
+}
+
 <div class="seri-kutusu mb-4">
     <div class="seri-simge">🔥</div>
     <div>
@@ -57,19 +62,45 @@
 
 <div class="kart mb-4" style="max-width: 560px;">
     <div class="kart-govde">
-        <dl class="row mb-0">
-            <dt class="col-sm-4">Ad Soyad</dt>
-            <dd class="col-sm-8">@Model.AdSoyad</dd>
+        <h2 class="h5 mb-3">Bilgilerimi Güncelle</h2>
+        <form asp-controller="Profil" asp-action="Guncelle" method="post">
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
 
-            <dt class="col-sm-4">Mail</dt>
-            <dd class="col-sm-8">@Model.Mail</dd>
+            <div class="mb-3">
+                <label class="form-label">Ad Soyad</label>
+                <input asp-for="AdSoyad" class="form-control" />
+                <span asp-validation-for="AdSoyad" class="text-danger"></span>
+            </div>
 
-            <dt class="col-sm-4">Doğum Tarihi</dt>
-            <dd class="col-sm-8">@Model.DogumTarihi.ToString("dd.MM.yyyy")</dd>
+            <div class="mb-3">
+                <label class="form-label">Mail</label>
+                <input asp-for="Mail" type="email" class="form-control" />
+                <span asp-validation-for="Mail" class="text-danger"></span>
+            </div>
 
-            <dt class="col-sm-4">Kayıt Tarihi</dt>
-            <dd class="col-sm-8 mb-0">@Model.KayitTarihi.ToString("dd.MM.yyyy")</dd>
-        </dl>
+            <div class="mb-3">
+                <label class="form-label">Doğum Tarihi</label>
+                <input asp-for="DogumTarihi" type="date" class="form-control" />
+                <span asp-validation-for="DogumTarihi" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Yeni Parola <span class="form-text">(değiştirmek istemiyorsanız boş bırakın)</span></label>
+                <input asp-for="YeniParola" type="password" class="form-control" />
+                <span asp-validation-for="YeniParola" class="text-danger"></span>
+                <div class="form-text">Büyük-küçük harf ve rakam içermelidir.</div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Yeni Parola Tekrar</label>
+                <input asp-for="YeniParolaTekrar" type="password" class="form-control" />
+                <span asp-validation-for="YeniParolaTekrar" class="text-danger"></span>
+            </div>
+
+            <div class="text-muted small mb-3">Kayıt tarihi: @Model.KayitTarihi.ToString("dd.MM.yyyy")</div>
+
+            <button type="submit" class="btn btn-primary">Kaydet</button>
+        </form>
     </div>
 </div>
 
@@ -84,3 +115,7 @@
         </div>
     }
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

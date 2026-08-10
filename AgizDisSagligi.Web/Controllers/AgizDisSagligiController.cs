@@ -43,7 +43,8 @@ public class AgizDisSagligiController : Controller
             Hedefler = hedefler,
             Notlar = _notServisi.ListeleKullaniciIle(kullaniciId),
             RastgeleOneri = _oneriServisi.RastgeleGetir(),
-            HedefDurumlari = hedefDurumlari
+            HedefDurumlari = hedefDurumlari,
+            SonYediGun = _durumKaydiServisi.SonYediGunOzeti(kullaniciId)
         };
         return View(model);
     }

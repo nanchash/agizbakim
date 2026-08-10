@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using AgizDisSagligi.Business;
 using AgizDisSagligi.Web.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,12 +31,12 @@ public class ProfilController : Controller
         _rozetServisi = rozetServisi;
     }
 
-    public IActionResult Index()
-    {
-        var kullaniciId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-        var kullanici = _kullaniciServisi.IdIleBul(kullaniciId);
+    private int GetirKullaniciId() => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-        var model = new ProfilViewModel
+    private ProfilViewModel ModelOlustur(int kullaniciId)
+    {
+        var kullanici = _kullaniciServisi.IdIleBul(kullaniciId);
+        return new ProfilViewModel
         {
             Mail = kullanici.Mail,
             AdSoyad = kullanici.AdSoyad,
@@ -46,7 +48,48 @@ public class ProfilController : Controller
             ToplamNotSayisi = _notServisi.ListeleKullaniciIle(kullaniciId).Count,
             Rozetler = _rozetServisi.Hesapla(kullaniciId)
         };
+    }
 
-        return View(model);
+    public IActionResult Index()
+    {
+        return View(ModelOlustur(GetirKullaniciId()));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Guncelle(ProfilViewModel model)
+    {
+        var kullaniciId = GetirKullaniciId();
+
+        if (!ModelState.IsValid)
+        {
+            var yeniden = ModelOlustur(kullaniciId);
+            yeniden.Mail = model.Mail;
+            yeniden.AdSoyad = model.AdSoyad;
+            yeniden.DogumTarihi = model.DogumTarihi;
+            return View("Index", yeniden);
+        }
+
+        var (basarili, mesaj) = _kullaniciServisi.ProfilGuncelle(kullaniciId, model.Mail, model.AdSoyad, model.DogumTarihi, model.YeniParola, model.YeniParolaTekrar);
+        if (!basarili)
+        {
+            ModelState.AddModelError("", mesaj);
+            var yeniden = ModelOlustur(kullaniciId);
+            yeniden.Mail = model.Mail;
+            yeniden.AdSoyad = model.AdSoyad;
+            yeniden.DogumTarihi = model.DogumTarihi;
+            return View("Index", yeniden);
+        }
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, kullaniciId.ToString()),
+            new Claim(ClaimTypes.Name, model.AdSoyad),
+            new Claim(ClaimTypes.Email, model.Mail)
+        };
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
+
+        TempData["Mesaj"] = mesaj;
+        return RedirectToAction("Index");
     }
 }

@@ -43,6 +43,23 @@ public class DurumKaydiServisi
         return seri;
     }
 
+    public List<GunlukOzet> SonYediGunOzeti(int kullaniciId)
+    {
+        var kayitlar = _repo.ListeleKullaniciIle(kullaniciId);
+        var bugun = DateTime.Now.Date;
+
+        return Enumerable.Range(0, 7)
+            .Select(i => bugun.AddDays(-i))
+            .OrderBy(tarih => tarih)
+            .Select(tarih => new GunlukOzet
+            {
+                Tarih = tarih,
+                KayitSayisi = kayitlar.Count(d => d.Tarih.Date == tarih),
+                TamamlananSayisi = kayitlar.Count(d => d.Tarih.Date == tarih && d.Uygulandi)
+            })
+            .ToList();
+    }
+
     public (bool basarili, string mesaj) Ekle(int hedefId, DateTime tarih, TimeSpan saat, int sure, bool uygulandi, string? fircalamaTuru)
     {
         if (tarih > DateTime.Now.Date)

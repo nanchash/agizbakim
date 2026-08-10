@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Linq;
 using AgizDisSagligi.Business;
 using AgizDisSagligi.Web.Models;
 using Microsoft.AspNetCore.Authentication;
@@ -74,31 +75,29 @@ public class HesapController : Controller
     [HttpPost]
     public IActionResult ParolaHatirlatDogrula(ParolaHatirlatViewModel model)
     {
-        if (!ModelState.IsValid) return View("ParolaHatirlat", model);
+        if (!ModelState.IsValid)
+        {
+            var hata = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage ?? "Geçerli bir mail adresi giriniz.";
+            return Json(new { basarili = false, mesaj = hata });
+        }
 
         var kullanici = _kullaniciServisi.MailIleBul(model.Mail);
         if (kullanici == null)
-        {
-            ViewBag.Hata = "Bu mail adresine kayıtlı kullanıcı bulunamadı.";
-            return View("ParolaHatirlat", model);
-        }
+            return Json(new { basarili = false, mesaj = "Bu mail adresine kayıtlı kullanıcı bulunamadı." });
 
-        return View("YeniParolaBelirle", new YeniParolaViewModel { Mail = model.Mail });
+        return Json(new { basarili = true });
     }
 
     [HttpPost]
     public IActionResult YeniParolaBelirle(YeniParolaViewModel model)
     {
-        if (!ModelState.IsValid) return View(model);
-
-        var (basarili, mesaj) = _kullaniciServisi.ParolaSifirla(model.Mail, model.YeniParola, model.YeniParolaTekrar);
-        if (!basarili)
+        if (!ModelState.IsValid)
         {
-            ModelState.AddModelError("", mesaj);
-            return View(model);
+            var hata = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage ?? "Geçersiz bilgi.";
+            return Json(new { basarili = false, mesaj = hata });
         }
 
-        TempData["Mesaj"] = "Parolanız güncellendi, giriş yapabilirsiniz.";
-        return RedirectToAction("Giris");
+        var (basarili, mesaj) = _kullaniciServisi.ParolaSifirla(model.Mail, model.YeniParola, model.YeniParolaTekrar);
+        return Json(new { basarili, mesaj });
     }
 }

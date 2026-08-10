@@ -89,4 +89,38 @@ public class KullaniciServisi
         _repo.Guncelle(kullanici);
         return (true, "Parolanız güncellendi.");
     }
+
+    public (bool basarili, string mesaj) ProfilGuncelle(int kullaniciId, string mail, string adSoyad, DateTime dogumTarihi, string? yeniParola, string? yeniParolaTekrar)
+    {
+        if (!Regex.IsMatch(mail, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+            return (false, "Geçerli bir mail adresi giriniz.");
+
+        if (dogumTarihi >= DateTime.Now)
+            return (false, "Geçerli bir doğum tarihi giriniz.");
+
+        var mailliKullanici = _repo.GetirMailIle(mail);
+        if (mailliKullanici != null && mailliKullanici.Id != kullaniciId)
+            return (false, "Bu mail adresi başka bir kullanıcıya kayıtlı.");
+
+        var kullanici = _repo.GetirId(kullaniciId);
+        if (kullanici == null)
+            return (false, "Kullanıcı bulunamadı.");
+
+        if (!string.IsNullOrEmpty(yeniParola) || !string.IsNullOrEmpty(yeniParolaTekrar))
+        {
+            if (yeniParola == null || yeniParola.Length < 8 || !Regex.IsMatch(yeniParola, @"[A-Z]") || !Regex.IsMatch(yeniParola, @"[a-z]") || !Regex.IsMatch(yeniParola, @"[0-9]"))
+                return (false, "Parola en az 8 karakter olmalı, büyük-küçük harf ve rakam içermelidir.");
+
+            if (yeniParola != yeniParolaTekrar)
+                return (false, "Parolalar eşleşmiyor.");
+
+            kullanici.ParolaSifreli = _sifreleme.Sifrele(yeniParola);
+        }
+
+        kullanici.Mail = mail;
+        kullanici.AdSoyad = adSoyad;
+        kullanici.DogumTarihi = dogumTarihi;
+        _repo.Guncelle(kullanici);
+        return (true, "Profiliniz güncellendi.");
+    }
 }

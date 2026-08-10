@@ -43,7 +43,8 @@ public class AnaSayfaController : Controller
             BugunTamamlananSayisi = bugunTamamlanan,
             GunlukOneri = _oneriServisi.RastgeleGetir(),
             HaftalikKontrolHatirlatmasi = sonKontrolGunSayisi is null or >= 7,
-            SonKontrolGunSayisi = sonKontrolGunSayisi
+            SonKontrolGunSayisi = sonKontrolGunSayisi,
+            SonYediGun = _durumKaydiServisi.SonYediGunOzeti(kullaniciId)
         };
 
         return View(model);

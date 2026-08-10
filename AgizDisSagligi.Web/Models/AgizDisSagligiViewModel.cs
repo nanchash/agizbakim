@@ -9,6 +9,7 @@ public class AgizDisSagligiViewModel
     public List<Not> Notlar { get; set; }
     public Oneri RastgeleOneri { get; set; }
     public Dictionary<int, HedefDurumu> HedefDurumlari { get; set; }
+    public List<GunlukOzet> SonYediGun { get; set; }
 }
 
 public class HedefEkleViewModel

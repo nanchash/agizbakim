@@ -1,4 +1,3 @@
-@model AgizDisSagligi.Web.Models.ParolaHatirlatViewModel
 @{
     ViewData["Title"] = "Parola Hatırlatma";
 }
@@ -9,22 +8,28 @@
         <h1>Parolamı Unuttum</h1>
         <p class="auth-alt-metin">Kayıtlı mail adresinizi girin, yeni parola belirleyelim.</p>
 
-        @if (ViewBag.Hata != null)
-        {
-            <div class="alert alert-danger">@ViewBag.Hata</div>
-        }
+        <div id="mesajAlani"></div>
 
-        <form asp-action="ParolaHatirlatDogrula" method="post">
-            <div asp-validation-summary="All" class="text-danger mb-3"></div>
-
+        <div id="mailAlani">
             <div class="mb-4">
                 <label class="form-label">Mail</label>
-                <input asp-for="Mail" type="email" class="form-control" placeholder="ornek@mail.com" />
-                <span asp-validation-for="Mail" class="text-danger"></span>
+                <input id="mailInput" type="email" class="form-control" placeholder="ornek@mail.com" required />
             </div>
+            <button type="button" id="dogrulaBtn" class="btn btn-primary w-100">Devam Et</button>
+        </div>
 
-            <button type="submit" class="btn btn-primary w-100">Devam Et</button>
-        </form>
+        <div id="parolaAlanlari" class="d-none">
+            <div class="mb-3">
+                <label class="form-label">Yeni Parola</label>
+                <input id="yeniParolaInput" type="password" class="form-control" required />
+                <div class="form-text">Büyük-küçük harf ve rakam içermelidir.</div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Yeni Parola Tekrar</label>
+                <input id="yeniParolaTekrarInput" type="password" class="form-control" required />
+            </div>
+            <button type="button" id="guncelleBtn" class="btn btn-primary w-100">Parolayı Güncelle</button>
+        </div>
 
         <p class="auth-alt-metin mt-3 mb-0">
             <a asp-action="Giris">Girişe geri dön</a>
@@ -33,5 +38,74 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        var dogrulanmisMail = null;
+
+        function mesajGoster(basarili, mesaj) {
+            var sinif = basarili ? 'alert-success' : 'alert-danger';
+            $('#mesajAlani').html('<div class="alert ' + sinif + ' mb-3">' + mesaj + '</div>');
+        }
+
+        $('#dogrulaBtn').on('click', function () {
+            var mail = $('#mailInput').val();
+            if (!mail) {
+                mesajGoster(false, 'Mail adresi zorunludur.');
+                return;
+            }
+
+            $('#dogrulaBtn').prop('disabled', true);
+            $.ajax({
+                url: '@Url.Action("ParolaHatirlatDogrula", "Hesap")',
+                type: 'POST',
+                data: { Mail: mail },
+                success: function (sonuc) {
+                    $('#dogrulaBtn').prop('disabled', false);
+                    if (sonuc.basarili) {
+                        dogrulanmisMail = mail;
+                        $('#mesajAlani').empty();
+                        $('#mailAlani').addClass('d-none');
+                        $('#parolaAlanlari').removeClass('d-none');
+                    } else {
+                        mesajGoster(false, sonuc.mesaj);
+                    }
+                },
+                error: function () {
+                    $('#dogrulaBtn').prop('disabled', false);
+                    mesajGoster(false, 'Bir şeyler ters gitti. Lütfen tekrar deneyin.');
+                }
+            });
+        });
+
+        $('#guncelleBtn').on('click', function () {
+            var yeniParola = $('#yeniParolaInput').val();
+            var yeniParolaTekrar = $('#yeniParolaTekrarInput').val();
+            if (!yeniParola || !yeniParolaTekrar) {
+                mesajGoster(false, 'Yeni parola ve tekrarı zorunludur.');
+                return;
+            }
+
+            $('#guncelleBtn').prop('disabled', true);
+            $.ajax({
+                url: '@Url.Action("YeniParolaBelirle", "Hesap")',
+                type: 'POST',
+                data: { Mail: dogrulanmisMail, YeniParola: yeniParola, YeniParolaTekrar: yeniParolaTekrar },
+                success: function (sonuc) {
+                    $('#guncelleBtn').prop('disabled', false);
+                    if (sonuc.basarili) {
+                        mesajGoster(true, sonuc.mesaj + ' Girişe yönlendiriliyorsunuz…');
+                        $('#parolaAlanlari').addClass('d-none');
+                        setTimeout(function () {
+                            window.location.href = '@Url.Action("Giris", "Hesap")';
+                        }, 1500);
+                    } else {
+                        mesajGoster(false, sonuc.mesaj);
+                    }
+                },
+                error: function () {
+                    $('#guncelleBtn').prop('disabled', false);
+                    mesajGoster(false, 'Bir şeyler ters gitti. Lütfen tekrar deneyin.');
+                }
+            });
+        });
+    </script>
 }
