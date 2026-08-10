@@ -14,7 +14,36 @@ public class DurumKaydiServisi
 
     public List<DurumKaydi> ListeleHedefIle(int hedefId) => _repo.ListeleHedefIle(hedefId);
 
-    public (bool basarili, string mesaj) Ekle(int hedefId, DateTime tarih, TimeSpan saat, int sure, bool uygulandi)
+    public List<DurumKaydi> ListeleKullaniciIle(int kullaniciId) => _repo.ListeleKullaniciIle(kullaniciId);
+
+    public int GunlukSeriHesapla(int kullaniciId)
+    {
+        var tamamlananGunler = _repo.ListeleKullaniciIle(kullaniciId)
+            .Where(d => d.Uygulandi)
+            .Select(d => d.Tarih.Date)
+            .Distinct()
+            .ToHashSet();
+
+        if (tamamlananGunler.Count == 0)
+            return 0;
+
+        var bugun = DateTime.Now.Date;
+        var baslangic = tamamlananGunler.Contains(bugun) ? bugun : bugun.AddDays(-1);
+
+        if (!tamamlananGunler.Contains(baslangic))
+            return 0;
+
+        var seri = 0;
+        var gun = baslangic;
+        while (tamamlananGunler.Contains(gun))
+        {
+            seri++;
+            gun = gun.AddDays(-1);
+        }
+        return seri;
+    }
+
+    public (bool basarili, string mesaj) Ekle(int hedefId, DateTime tarih, TimeSpan saat, int sure, bool uygulandi, string? fircalamaTuru)
     {
         if (tarih > DateTime.Now.Date)
             return (false, "Gelecek bir tarih için durum kaydı girilemez.");
@@ -25,7 +54,8 @@ public class DurumKaydiServisi
             Tarih = tarih,
             Saat = saat,
             Sure = sure,
-            Uygulandi = uygulandi
+            Uygulandi = uygulandi,
+            FircalamaTuru = fircalamaTuru
         };
         _repo.Ekle(durumKaydi);
         return (true, "Durum kaydı eklendi.");

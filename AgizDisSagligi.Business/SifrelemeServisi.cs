@@ -5,7 +5,7 @@ namespace AgizDisSagligi.Business;
 
 public class SifrelemeServisi
 {
-    private static readonly string AnahtarMetin = "BuCokGizliBirAnahtarOlmali1234!!"; // 32 karakter, AES-256 için
+    private static readonly string AnahtarMetin = "Ta0dkBzxgMGWs1IQvlYnyDZiF8PuqS2h"; // 32 karakter, AES-256 için
 
     public string Sifrele(string duzMetin)
     {

@@ -3,33 +3,42 @@
     ViewData["Title"] = "Giriş Yap";
 }
 
-<h1>Giriş Yap</h1>
+<div class="auth-sarmalayici">
+    <div class="auth-kart">
+        <div class="auth-simge">🦷</div>
+        <h1>Tekrar Hoş Geldiniz</h1>
+        <p class="auth-alt-metin">Devam etmek için giriş yapın.</p>
 
-@if (TempData["Mesaj"] != null)
-{
-    <div class="alert alert-success">@TempData["Mesaj"]</div>
-}
+        @if (TempData["Mesaj"] != null)
+        {
+            <div class="alert alert-success">@TempData["Mesaj"]</div>
+        }
 
-<div class="row">
-    <div class="col-md-6">
         <form asp-action="Giris" method="post">
-            <div asp-validation-summary="All" class="text-danger"></div>
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
 
             <div class="mb-3">
                 <label class="form-label">Mail</label>
-                <input asp-for="Mail" type="email" class="form-control" />
+                <input asp-for="Mail" type="email" class="form-control" placeholder="ornek@mail.com" />
                 <span asp-validation-for="Mail" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
+            <div class="mb-2">
                 <label class="form-label">Parola</label>
                 <input asp-for="Parola" type="password" class="form-control" />
                 <span asp-validation-for="Parola" class="text-danger"></span>
             </div>
 
-            <button type="submit" class="btn btn-primary">Giriş Yap</button>
-            <a asp-action="ParolaHatirlat" class="btn btn-link">Parolamı unuttum</a>
+            <div class="text-end mb-3">
+                <a asp-action="ParolaHatirlat" class="btn btn-link p-0">Parolamı unuttum</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Giriş Yap</button>
         </form>
+
+        <p class="auth-alt-metin mt-3 mb-0">
+            Hesabınız yok mu? <a asp-action="Kayit">Kayıt olun</a>
+        </p>
     </div>
 </div>
 

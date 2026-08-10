@@ -26,6 +26,7 @@ builder.Services.AddScoped<HedefServisi>();
 builder.Services.AddScoped<DurumKaydiServisi>();
 builder.Services.AddScoped<NotServisi>();
 builder.Services.AddScoped<OneriServisi>();
+builder.Services.AddScoped<RozetServisi>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

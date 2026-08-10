@@ -9,4 +9,5 @@ public class DurumKaydi
     public TimeSpan Saat { get; set; }
     public int Sure { get; set; }
     public bool Uygulandi { get; set; }
+    public string? FircalamaTuru { get; set; }
 }

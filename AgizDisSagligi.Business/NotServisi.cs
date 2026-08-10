@@ -30,5 +30,13 @@ public class NotServisi
         return (true, "Not eklendi.");
     }
 
-    public void Sil(int id) => _repo.Sil(id);
+    public (bool basarili, string mesaj) Sil(int id, int kullaniciId)
+    {
+        var not = _repo.GetirId(id);
+        if (not == null || not.KullaniciId != kullaniciId)
+            return (false, "Not bulunamadı.");
+
+        _repo.Sil(id);
+        return (true, "Not silindi.");
+    }
 }

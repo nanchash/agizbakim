@@ -8,4 +8,6 @@ public class AnaSayfaViewModel
     public int ToplamHedefSayisi { get; set; }
     public int BugunTamamlananSayisi { get; set; }
     public Oneri GunlukOneri { get; set; }
+    public bool HaftalikKontrolHatirlatmasi { get; set; }
+    public int? SonKontrolGunSayisi { get; set; }
 }

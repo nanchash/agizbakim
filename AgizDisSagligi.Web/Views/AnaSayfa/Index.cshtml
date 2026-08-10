@@ -3,22 +3,49 @@
     ViewData["Title"] = "Ana Sayfa";
 }
 
-<h1>Merhaba, @Model.AdSoyad</h1>
+<div class="sayfa-baslik">
+    <span class="simge">👋</span>
+    <h1 class="h3 mb-0">Merhaba, @Model.AdSoyad</h1>
+</div>
 
-<div class="row mt-4">
-    <div class="col-md-4">
-        <div class="card text-center mb-3">
-            <div class="card-body">
-                <h5 class="card-title">Toplam Hedef</h5>
-                <p class="display-6">@Model.ToplamHedefSayisi</p>
+@if (Model.HaftalikKontrolHatirlatmasi)
+{
+    <div class="hatirlatma-kutusu mb-4">
+        <span class="simge">🔔</span>
+        <div class="flex-grow-1">
+            <div>
+                <strong>Haftalık kontrol zamanı geldi.</strong>
+                @if (Model.SonKontrolGunSayisi is int gun)
+                {
+                    <span>Son kontrolünüzün üzerinden @gun gün geçti.</span>
+                }
+                else
+                {
+                    <span>Henüz hiç durum notu eklemediniz.</span>
+                }
+            </div>
+            <div class="mt-1">Diş eti kanaması, hassasiyet, diş taşı ya da nefes kokusu şikayetiniz var mı kontrol edin.</div>
+            <a asp-controller="AgizDisSagligi" asp-action="Index" asp-fragment="notForm" class="btn btn-sm btn-primary mt-2">Kontrol Et ve Not Ekle</a>
+        </div>
+    </div>
+}
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="istatistik-kart">
+            <div class="istatistik-simge">🎯</div>
+            <div>
+                <div class="istatistik-deger">@Model.ToplamHedefSayisi</div>
+                <div class="istatistik-etiket">Toplam Hedef</div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card text-center mb-3">
-            <div class="card-body">
-                <h5 class="card-title">Bugün Tamamlanan</h5>
-                <p class="display-6">@Model.BugunTamamlananSayisi</p>
+    <div class="col-md-6">
+        <div class="istatistik-kart">
+            <div class="istatistik-simge">✅</div>
+            <div>
+                <div class="istatistik-deger">@Model.BugunTamamlananSayisi</div>
+                <div class="istatistik-etiket">Bugün Tamamlanan</div>
             </div>
         </div>
     </div>
@@ -26,9 +53,10 @@
 
 @if (Model.GunlukOneri != null)
 {
-    <div class="alert alert-info">
-        <strong>Günün Önerisi:</strong> @Model.GunlukOneri.Metin
+    <div class="oneri-kutusu mt-4">
+        <span class="simge">💡</span>
+        <div><strong>Günün Önerisi:</strong> @Model.GunlukOneri.Metin</div>
     </div>
 }
 
-<a asp-controller="AgizDisSagligi" asp-action="Index" class="btn btn-primary">Ağız ve Diş Sağlığı Sayfasına Git</a>
+<a asp-controller="AgizDisSagligi" asp-action="Index" class="btn btn-primary mt-4">Ağız ve Diş Sağlığı Sayfasına Git</a>

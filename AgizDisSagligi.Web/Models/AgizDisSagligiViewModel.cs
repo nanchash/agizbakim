@@ -1,3 +1,4 @@
+using AgizDisSagligi.Business;
 using AgizDisSagligi.Entities;
 
 namespace AgizDisSagligi.Web.Models;
@@ -7,6 +8,7 @@ public class AgizDisSagligiViewModel
     public List<Hedef> Hedefler { get; set; }
     public List<Not> Notlar { get; set; }
     public Oneri RastgeleOneri { get; set; }
+    public Dictionary<int, HedefDurumu> HedefDurumlari { get; set; }
 }
 
 public class HedefEkleViewModel
@@ -25,6 +27,7 @@ public class DurumKaydiEkleViewModel
     public TimeSpan Saat { get; set; }
     public int Sure { get; set; }
     public bool Uygulandi { get; set; }
+    public string? FircalamaTuru { get; set; }
 }
 
 public class NotEkleViewModel

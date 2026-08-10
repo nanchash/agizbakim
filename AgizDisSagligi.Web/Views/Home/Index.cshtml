@@ -2,9 +2,35 @@
     ViewData["Title"] = "Ana Sayfa";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Ağız ve Diş Sağlığı Takip Uygulaması</h1>
+<div class="hero">
+    <div class="hero-simge">🦷</div>
+    <h1>Ağız ve Diş Sağlığı Takip Uygulaması</h1>
     <p class="lead">Günlük diş fırçalama alışkanlıklarınızı takip edin, hedefler koyun ve sağlıklı bir gülüşe adım atın.</p>
-    <a asp-controller="Hesap" asp-action="Kayit" class="btn btn-primary btn-lg me-2">Kayıt Ol</a>
-    <a asp-controller="Hesap" asp-action="Giris" class="btn btn-outline-primary btn-lg">Giriş Yap</a>
+    <div class="mt-4">
+        <a asp-controller="Hesap" asp-action="Kayit" class="btn btn-primary btn-lg me-2">Kayıt Ol</a>
+        <a asp-controller="Hesap" asp-action="Giris" class="btn btn-outline-primary btn-lg">Giriş Yap</a>
+    </div>
+</div>
+
+<div class="ozellik-listesi">
+    <div class="ozellik-kart">
+        <div class="simge">🎯</div>
+        <h3>Hedef Belirleyin</h3>
+        <p>Fırçalama, diş ipi gibi alışkanlıklarınız için kişisel hedefler oluşturun ve periyodunu siz belirleyin.</p>
+    </div>
+    <div class="ozellik-kart">
+        <div class="simge">✅</div>
+        <h3>Durumunuzu Kaydedin</h3>
+        <p>Her gün hedeflerinizi uygulayıp uygulamadığınızı işaretleyin, ilerlemenizi görün.</p>
+    </div>
+    <div class="ozellik-kart">
+        <div class="simge">📝</div>
+        <h3>Not ve Görsel Ekleyin</h3>
+        <p>Ağız sağlığınızla ilgili gözlemlerinizi not alın, dilerseniz görsel ekleyin.</p>
+    </div>
+    <div class="ozellik-kart">
+        <div class="simge">💡</div>
+        <h3>Günlük Öneriler Alın</h3>
+        <p>Ağız ve diş sağlığınızı korumanız için pratik önerilerle karşılaşın.</p>
+    </div>
 </div>

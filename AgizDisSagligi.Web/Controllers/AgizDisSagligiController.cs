@@ -34,11 +34,16 @@ public class AgizDisSagligiController : Controller
     public IActionResult Index()
     {
         var kullaniciId = GetirKullaniciId();
+        var hedefler = _hedefServisi.ListeleKullaniciIle(kullaniciId);
+
+        var hedefDurumlari = hedefler.ToDictionary(h => h.Id, h => _hedefServisi.DurumuHesapla(h));
+
         var model = new AgizDisSagligiViewModel
         {
-            Hedefler = _hedefServisi.ListeleKullaniciIle(kullaniciId),
+            Hedefler = hedefler,
             Notlar = _notServisi.ListeleKullaniciIle(kullaniciId),
-            RastgeleOneri = _oneriServisi.RastgeleGetir()
+            RastgeleOneri = _oneriServisi.RastgeleGetir(),
+            HedefDurumlari = hedefDurumlari
         };
         return View(model);
     }
@@ -59,14 +64,29 @@ public class AgizDisSagligiController : Controller
     [HttpPost]
     public IActionResult HedefSil(int id)
     {
-        var (basarili, mesaj) = _hedefServisi.Sil(id);
+        var (basarili, mesaj) = _hedefServisi.Sil(id, GetirKullaniciId());
         return Json(new { basarili, mesaj });
     }
 
     [HttpPost]
     public IActionResult DurumKaydiEkle(DurumKaydiEkleViewModel model)
     {
-        var (basarili, mesaj) = _durumKaydiServisi.Ekle(model.HedefId, model.Tarih, model.Saat, model.Sure, model.Uygulandi);
+        var kullaniciId = GetirKullaniciId();
+        var hedef = _hedefServisi.GetirId(model.HedefId);
+        if (hedef == null || hedef.KullaniciId != kullaniciId)
+            return Json(new { basarili = false, mesaj = "Hedef bulunamadı." });
+
+        var (basarili, mesaj) = _durumKaydiServisi.Ekle(model.HedefId, model.Tarih, model.Saat, model.Sure, model.Uygulandi, model.FircalamaTuru);
+
+        if (basarili && model.Uygulandi && model.FircalamaTuru != null && model.FircalamaTuru.Contains("Yumuşak", StringComparison.OrdinalIgnoreCase))
+        {
+            var hafifHedef = _hedefServisi.ListeleKullaniciIle(kullaniciId)
+                .FirstOrDefault(h => h.Id != model.HedefId && h.Baslik.Contains("Hafif", StringComparison.OrdinalIgnoreCase) && h.Baslik.Contains("Fırçala", StringComparison.OrdinalIgnoreCase));
+
+            if (hafifHedef != null)
+                _durumKaydiServisi.Ekle(hafifHedef.Id, model.Tarih, model.Saat, model.Sure, true, model.FircalamaTuru);
+        }
+
         return Json(new { basarili, mesaj });
     }
 
@@ -97,7 +117,7 @@ public class AgizDisSagligiController : Controller
     [HttpPost]
     public IActionResult NotSil(int id)
     {
-        _notServisi.Sil(id);
-        return Json(new { basarili = true });
+        var (basarili, mesaj) = _notServisi.Sil(id, GetirKullaniciId());
+        return Json(new { basarili, mesaj });
     }
 }

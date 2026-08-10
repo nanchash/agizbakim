@@ -1,88 +1,275 @@
 @model AgizDisSagligi.Web.Models.AgizDisSagligiViewModel
 @{
     ViewData["Title"] = "Ağız ve Diş Sağlığı";
+
+    static (string sinif, string metin) OnemBilgisi(int onem) => onem switch
+    {
+        3 => ("rozet-onem-3", "Yüksek"),
+        2 => ("rozet-onem-2", "Orta"),
+        _ => ("rozet-onem-1", "Düşük"),
+    };
 }
 
-<h1>Ağız ve Diş Sağlığı</h1>
+<div class="sayfa-baslik">
+    <span class="simge">🦷</span>
+    <h1 class="h3 mb-0">Ağız ve Diş Sağlığı</h1>
+</div>
 
 @if (Model.RastgeleOneri != null)
 {
-    <div class="alert alert-info">
-        <strong>Öneri:</strong> @Model.RastgeleOneri.Metin
+    <div class="oneri-kutusu mb-4">
+        <span class="simge">💡</span>
+        <div><strong>Öneri:</strong> @Model.RastgeleOneri.Metin</div>
     </div>
 }
 
 <div id="mesajAlani"></div>
 
 <ul class="nav nav-tabs">
-    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#durum">Durum</a></li>
-    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#hedef">Hedef</a></li>
+    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#durum">✅ Durum</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#hedef">🎯 Hedef</a></li>
 </ul>
 
-<div class="tab-content mt-3">
+<div class="tab-content">
     <div class="tab-pane active" id="durum">
-        <h3>Durum Kaydı Ekle</h3>
-        <form id="durumForm" class="row g-3">
-            <div class="col-md-4">
-                <label class="form-label">Hedef</label>
-                <select id="durumHedefId" name="HedefId" class="form-select" required>
-                    <option value="">-- Hedef Seçin --</option>
-                    @foreach (var hedef in Model.Hedefler)
-                    {
-                        <option value="@hedef.Id">@hedef.Baslik</option>
-                    }
-                </select>
+        @if (Model.Hedefler.Any())
+        {
+            <div class="kart mt-3">
+                <div class="kart-govde">
+                    <h2 class="h5 mb-3">Bugünkü Hedefleriniz</h2>
+                    <ul class="list-group list-group-flush">
+                        @foreach (var hedef in Model.Hedefler)
+                        {
+                            var durum = Model.HedefDurumlari[hedef.Id];
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <span>
+                                    @hedef.Baslik
+                                    @if (!durum.GunlukMu)
+                                    {
+                                        <span class="form-text">(@hedef.PeriyotZaman @hedef.PeriyotSiklik kez)</span>
+                                    }
+                                </span>
+                                @if (durum.GunlukMu)
+                                {
+                                    if (durum.TamamlandiMi)
+                                    {
+                                        <span class="rozet-onem rozet-onem-tamam">✅ Tamamlandı (@durum.BugunSayisi/@durum.HedefSayisi)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="rozet-onem rozet-onem-bekliyor">⏳ @durum.BugunSayisi/@durum.HedefSayisi</span>
+                                    }
+                                }
+                                else if (durum.HicTamamlanmadi)
+                                {
+                                    <span class="rozet-onem rozet-onem-bekliyor">⏳ Henüz yapılmadı</span>
+                                }
+                                else if (durum.KalanGun < 0)
+                                {
+                                    <span class="rozet-onem rozet-onem-gecikti">⚠️ @(-durum.KalanGun) gün gecikti</span>
+                                }
+                                else if (durum.KalanGun == 0)
+                                {
+                                    <span class="rozet-onem rozet-onem-bekliyor">🔔 Bugün zamanı geldi</span>
+                                }
+                                else
+                                {
+                                    <span class="rozet-onem rozet-onem-tamam">🗓️ @durum.KalanGun gün kaldı</span>
+                                }
+                            </li>
+                        }
+                    </ul>
+                </div>
             </div>
-            <div class="col-md-2">
-                <label class="form-label">Tarih</label>
-                <input type="date" id="durumTarih" name="Tarih" class="form-control" required />
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">Saat</label>
-                <input type="time" id="durumSaat" name="Saat" class="form-control" required />
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">Süre (dk)</label>
-                <input type="number" id="durumSure" name="Sure" class="form-control" min="1" required />
-            </div>
-            <div class="col-md-2 form-check mt-4">
-                <input type="checkbox" id="durumUygulandi" name="Uygulandi" class="form-check-input" />
-                <label class="form-check-label" for="durumUygulandi">Uygulandı</label>
-            </div>
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary">Kaydet</button>
-            </div>
-        </form>
+        }
 
-        <hr />
+        <div class="kart mt-3">
+            <div class="kart-govde">
+                <h2 class="h5 mb-3">Durum Kaydı Ekle</h2>
+                <form id="durumForm" class="row g-3">
+                    <div class="col-md-5">
+                        <label class="form-label">Hedef</label>
+                        <select id="durumHedefId" name="HedefId" class="form-select" required>
+                            <option value="">-- Hedef Seçin --</option>
+                            @foreach (var hedef in Model.Hedefler)
+                            {
+                                <option value="@hedef.Id">@hedef.Baslik</option>
+                            }
+                        </select>
+                        @if (!Model.Hedefler.Any())
+                        {
+                            <div class="form-text">Önce "Hedef" sekmesinden bir hedef ekleyin.</div>
+                        }
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Tarih</label>
+                        <div class="d-flex align-items-center gap-2 tarih-secici">
+                            <span class="tarih-simge">📅</span>
+                            <select id="durumTarihGun" class="form-select">
+                                @for (var g = 1; g <= 31; g++)
+                                {
+                                    <option value="@g.ToString("00")">@g</option>
+                                }
+                            </select>
+                            <select id="durumTarihAy" class="form-select">
+                                <option value="01">Ocak</option>
+                                <option value="02">Şubat</option>
+                                <option value="03">Mart</option>
+                                <option value="04">Nisan</option>
+                                <option value="05">Mayıs</option>
+                                <option value="06">Haziran</option>
+                                <option value="07">Temmuz</option>
+                                <option value="08">Ağustos</option>
+                                <option value="09">Eylül</option>
+                                <option value="10">Ekim</option>
+                                <option value="11">Kasım</option>
+                                <option value="12">Aralık</option>
+                            </select>
+                            <select id="durumTarihYil" class="form-select">
+                                @for (var y = DateTime.Now.Year; y >= DateTime.Now.Year - 2; y--)
+                                {
+                                    <option value="@y">@y</option>
+                                }
+                            </select>
+                        </div>
+                        <input type="hidden" id="durumTarih" name="Tarih" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Süre</label>
+                        <select id="durumSure" name="Sure" class="form-select" required>
+                            <option value="">-- Süre --</option>
+                            <option value="1">1 dakika</option>
+                            <option value="2">2 dakika</option>
+                            <option value="3">3 dakika</option>
+                            <option value="5">5 dakika</option>
+                            <option value="10">10 dakika</option>
+                            <option value="15">15 dakika</option>
+                            <option value="20">20 dakika</option>
+                            <option value="30">30 dakika</option>
+                        </select>
+                    </div>
 
-        <h3>Not Ekle</h3>
-        <form id="notForm" class="row g-3" enctype="multipart/form-data">
-            <div class="col-md-6">
-                <label class="form-label">Açıklama</label>
-                <textarea id="notAciklama" name="Aciklama" class="form-control" required></textarea>
+                    <div class="col-12">
+                        <label class="form-label">Saat</label>
+                        <div class="secenek-cip-grubu">
+                            <button type="button" class="secenek-cip" data-saat="08:00">🌅 Sabah</button>
+                            <button type="button" class="secenek-cip" data-saat="13:00">🌤️ Öğle</button>
+                            <button type="button" class="secenek-cip" data-saat="21:00">🌙 Akşam</button>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <select id="durumSaatSaat" class="form-select" style="max-width: 90px;">
+                                @for (var s = 0; s < 24; s++)
+                                {
+                                    <option value="@s.ToString("00")">@s.ToString("00")</option>
+                                }
+                            </select>
+                            <span>:</span>
+                            <select id="durumSaatDakika" class="form-select" style="max-width: 90px;">
+                                <option value="00">00</option>
+                                <option value="15">15</option>
+                                <option value="30">30</option>
+                                <option value="45">45</option>
+                            </select>
+                            <span class="form-text">(24 saat formatı, tarayıcıdan bağımsız)</span>
+                        </div>
+                        <input type="hidden" id="durumSaat" name="Saat" required />
+                    </div>
+
+                    <div class="col-12 d-none" id="fircalamaTuruAlani">
+                        <label class="form-label">Fırçalama Türü</label>
+                        <div class="secenek-cip-grubu">
+                            <button type="button" class="secenek-cip" data-tur="Normal Fırçalama">🪥 Normal Fırçalama</button>
+                            <button type="button" class="secenek-cip" data-tur="Yumuşak Fırçalama">🌿 Yumuşak Fırçalama</button>
+                        </div>
+                        <input type="hidden" id="durumFircalamaTuru" name="FircalamaTuru" />
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" id="durumUygulandi" name="Uygulandi" value="true" class="form-check-input" checked />
+                            <input type="hidden" name="Uygulandi" value="false" />
+                            <label class="form-check-label" for="durumUygulandi">Uygulandı</label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Kaydet</button>
+                    </div>
+                </form>
             </div>
-            <div class="col-md-4">
-                <label class="form-label">Görsel</label>
-                <input type="file" id="notGorsel" name="Gorsel" class="form-control" accept="image/*" />
+        </div>
+
+        <div class="kart mt-3">
+            <div class="kart-govde">
+                <h2 class="h5 mb-3">Not Ekle</h2>
+                <form id="notForm" enctype="multipart/form-data">
+                    <label class="form-label">Hızlı Seçim</label>
+                    <div class="secenek-cip-grubu" id="notCipGrubu">
+                        <button type="button" class="secenek-cip"
+                                data-metin="Diş eti kanaması fark ettim"
+                                data-hedef-baslik="Daha Hafif Fırçalama"
+                                data-hedef-aciklama="Diş eti kanamasını azaltmak için daha hafif basınçla fırçalayın"
+                                data-hedef-periyot-zaman="Günde" data-hedef-periyot-siklik="2" data-hedef-onem="3">🩸 Diş eti kanaması</button>
+                        <button type="button" class="secenek-cip"
+                                data-metin="Hassasiyet hissettim"
+                                data-hedef-baslik="Hassas Diş Macunu Kullanımı"
+                                data-hedef-aciklama="Hassasiyete özel diş macunu kullanmayı deneyin"
+                                data-hedef-periyot-zaman="Günde" data-hedef-periyot-siklik="2" data-hedef-onem="2">⚠️ Hassasiyet</button>
+                        <button type="button" class="secenek-cip" data-metin="Ağrı yok, her şey normal">✔️ Her şey normal</button>
+                        <button type="button" class="secenek-cip"
+                                data-metin="Diş taşı oluşumu fark ettim"
+                                data-hedef-baslik="Diş Hekimi Kontrolü"
+                                data-hedef-aciklama="Diş taşı temizliği için diş hekimine gidin"
+                                data-hedef-periyot-zaman="Yılda" data-hedef-periyot-siklik="2" data-hedef-onem="3">🦷 Diş taşı</button>
+                        <button type="button" class="secenek-cip"
+                                data-metin="Nefes kokusu şikayeti"
+                                data-hedef-baslik="Ağız Gargarası Kullanımı"
+                                data-hedef-aciklama="Nefes kokusunu azaltmak için gargara kullanın"
+                                data-hedef-periyot-zaman="Günde" data-hedef-periyot-siklik="1" data-hedef-onem="2">💨 Nefes kokusu</button>
+                    </div>
+
+                    <div class="oneri-kutusu d-none mb-3" id="notHedefOnerisi">
+                        <span class="simge">🎯</span>
+                        <div class="flex-grow-1">
+                            <div><strong>Önerilen hedef:</strong> <span id="notHedefOnerisiMetin"></span></div>
+                            <div class="mt-2">
+                                <button type="button" class="btn btn-sm btn-primary" id="notHedefOnerisiEkleBtn">Hedef Olarak Ekle</button>
+                                <button type="button" class="btn btn-sm btn-link" id="notHedefOnerisiVazgecBtn">Vazgeç</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label">Açıklama</label>
+                            <textarea id="notAciklama" name="Aciklama" class="form-control" rows="2" placeholder="Yukarıdan hızlı seçim yapın ya da kendi notunuzu yazın" required></textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Görsel <span class="form-text">(isteğe bağlı)</span></label>
+                            <input type="file" id="notGorsel" name="Gorsel" class="form-control" accept="image/*" />
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">Notu Kaydet</button>
+                        </div>
+                    </div>
+                </form>
             </div>
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary">Notu Kaydet</button>
-            </div>
-        </form>
+        </div>
 
         <div class="row mt-3" id="notlarListesi">
             @foreach (var not in Model.Notlar)
             {
-                <div class="col-md-3 mb-3">
-                    <div class="card">
+                <div class="col-md-3 mb-3" id="notKarti-@not.Id">
+                    <div class="card not-karti h-100">
                         @if (!string.IsNullOrEmpty(not.GorselYolu))
                         {
                             <img src="@not.GorselYolu" class="card-img-top" alt="Not görseli" />
                         }
-                        <div class="card-body">
-                            <p class="card-text">@not.Aciklama</p>
-                            <small class="text-muted">@not.EklenmeTarihi.ToString("dd.MM.yyyy HH:mm")</small>
+                        <div class="card-body d-flex flex-column">
+                            <p class="card-text flex-grow-1">@not.Aciklama</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">@not.EklenmeTarihi.ToString("dd.MM.yyyy HH:mm")</small>
+                                <button type="button" class="btn btn-sm btn-outline-danger not-sil-btn" data-id="@not.Id">Sil</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -91,68 +278,104 @@
     </div>
 
     <div class="tab-pane" id="hedef">
-        <h3>Hedef Ekle</h3>
-        <form id="hedefForm" class="row g-3">
-            <div class="col-md-3">
-                <label class="form-label">Başlık</label>
-                <input type="text" id="hedefBaslik" name="Baslik" class="form-control" required />
+        <div class="kart mt-3">
+            <div class="kart-govde">
+                <h2 class="h5 mb-3">Hedef Ekle</h2>
+                <form id="hedefForm" class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Başlık</label>
+                        <select id="hedefBaslikSecim" class="form-select" required>
+                            <option value="">-- Hazır başlıklardan seçin --</option>
+                            <option value="Sabah Diş Fırçalama">🪥 Sabah Diş Fırçalama</option>
+                            <option value="Akşam Diş Fırçalama">🪥 Akşam Diş Fırçalama</option>
+                            <option value="Daha Hafif Fırçalama">🌿 Daha Hafif Fırçalama</option>
+                            <option value="Diş İpi Kullanımı">🧵 Diş İpi Kullanımı</option>
+                            <option value="Ağız Gargarası Kullanımı">🧴 Ağız Gargarası Kullanımı</option>
+                            <option value="Hassas Diş Macunu Kullanımı">⚠️ Hassas Diş Macunu Kullanımı</option>
+                            <option value="Diş Hekimi Kontrolü">🏥 Diş Hekimi Kontrolü</option>
+                            <option value="Şekerli Gıda Tüketimini Azaltma">🍬 Şekerli Gıda Tüketimini Azaltma</option>
+                            <option value="__diger__">✏️ Diğer (kendim yazacağım)</option>
+                        </select>
+                        <input type="text" id="hedefBaslikOzel" name="Baslik" class="form-control mt-2 d-none" placeholder="Hedef başlığınızı yazın" />
+                        <div class="text-danger small mt-1 d-none" id="hedefBaslikHata">Lütfen bir başlık seçin ya da kendi başlığınızı yazın.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Açıklama <span class="form-text">(isteğe bağlı)</span></label>
+                        <input type="text" id="hedefAciklama" name="Aciklama" list="hedefAciklamaOneri" class="form-control" placeholder="Örn. Kahvaltı sonrası" />
+                        <datalist id="hedefAciklamaOneri">
+                            <option value="Kahvaltı sonrası"></option>
+                            <option value="Öğle yemeği sonrası"></option>
+                            <option value="Akşam yemeği sonrası"></option>
+                            <option value="Yatmadan önce"></option>
+                        </datalist>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Periyot Zaman</label>
+                        <select id="hedefPeriyotZaman" name="PeriyotZaman" class="form-select">
+                            <option value="Günde">Günde</option>
+                            <option value="Haftada">Haftada</option>
+                            <option value="Ayda">Ayda</option>
+                            <option value="Yılda">Yılda</option>
+                        </select>
+                        <div class="form-text" id="periyotZamanIpucu"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" id="hedefPeriyotSiklikEtiket">Sıklık</label>
+                        <input type="number" id="hedefPeriyotSiklik" name="PeriyotSiklik" class="form-control" min="1" value="1" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Önem Derecesi</label>
+                        <select id="hedefOnemDerecesi" name="OnemDerecesi" class="form-select">
+                            <option value="1">Düşük</option>
+                            <option value="2" selected>Orta</option>
+                            <option value="3">Yüksek</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Hedef Ekle</button>
+                    </div>
+                </form>
             </div>
-            <div class="col-md-3">
-                <label class="form-label">Açıklama</label>
-                <input type="text" id="hedefAciklama" name="Aciklama" class="form-control" />
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">Periyot Zaman</label>
-                <select id="hedefPeriyotZaman" name="PeriyotZaman" class="form-select">
-                    <option value="Günde">Günde</option>
-                    <option value="Haftada">Haftada</option>
-                    <option value="Ayda">Ayda</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">Periyot Sıklık</label>
-                <input type="number" id="hedefPeriyotSiklik" name="PeriyotSiklik" class="form-control" min="1" value="1" required />
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">Önem Derecesi</label>
-                <select id="hedefOnemDerecesi" name="OnemDerecesi" class="form-select">
-                    <option value="1">Düşük</option>
-                    <option value="2">Orta</option>
-                    <option value="3">Yüksek</option>
-                </select>
-            </div>
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary">Hedef Ekle</button>
-            </div>
-        </form>
+        </div>
 
-        <hr />
-
-        <table class="table mt-3" id="hedeflerTablosu">
-            <thead>
-                <tr>
-                    <th>Başlık</th>
-                    <th>Açıklama</th>
-                    <th>Periyot</th>
-                    <th>Önem</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var hedef in Model.Hedefler)
-                {
-                    <tr id="hedefSatir-@hedef.Id">
-                        <td>@hedef.Baslik</td>
-                        <td>@hedef.Aciklama</td>
-                        <td>@hedef.PeriyotSiklik @hedef.PeriyotZaman</td>
-                        <td>@hedef.OnemDerecesi</td>
-                        <td>
-                            <button type="button" class="btn btn-sm btn-danger hedef-sil-btn" data-id="@hedef.Id">Sil</button>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <div class="kart mt-3">
+            <div class="kart-govde">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0" id="hedeflerTablosu">
+                        <thead>
+                            <tr>
+                                <th>Başlık</th>
+                                <th>Açıklama</th>
+                                <th>Periyot</th>
+                                <th>Önem</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var hedef in Model.Hedefler)
+                            {
+                                var (onemSinif, onemMetin) = OnemBilgisi(hedef.OnemDerecesi);
+                                <tr id="hedefSatir-@hedef.Id">
+                                    <td>@hedef.Baslik</td>
+                                    <td>@hedef.Aciklama</td>
+                                    <td>@hedef.PeriyotZaman @hedef.PeriyotSiklik kez</td>
+                                    <td><span class="rozet-onem @onemSinif">@onemMetin</span></td>
+                                    <td class="text-end">
+                                        <button type="button" class="btn btn-sm btn-outline-danger hedef-sil-btn" data-id="@hedef.Id">Sil</button>
+                                    </td>
+                                </tr>
+                            }
+                            @if (!Model.Hedefler.Any())
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">Henüz hedef eklemediniz.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -182,10 +405,166 @@
         function mesajGoster(basarili, mesaj) {
             var sinif = basarili ? 'alert-success' : 'alert-danger';
             $('#mesajAlani').html('<div class="alert ' + sinif + '">' + mesaj + '</div>');
+            $('html, body').animate({ scrollTop: $('#mesajAlani').offset().top - 90 }, 200);
         }
+
+        $(document).ajaxError(function (event, jqXHR) {
+            if (jqXHR.status === 0) return;
+            mesajGoster(false, 'Bir şeyler ters gitti (sunucu hatası: ' + jqXHR.status + '). Lütfen tekrar deneyin.');
+        });
+
+        function tarihGuncelle() {
+            $('#durumTarih').val($('#durumTarihYil').val() + '-' + $('#durumTarihAy').val() + '-' + $('#durumTarihGun').val());
+        }
+
+        function yerelTarihMetni(tarih) {
+            var yil = tarih.getFullYear();
+            var ay = String(tarih.getMonth() + 1).padStart(2, '0');
+            var gun = String(tarih.getDate()).padStart(2, '0');
+            return yil + '-' + ay + '-' + gun;
+        }
+
+        var suanki = new Date();
+        $('#durumTarihGun').val(String(suanki.getDate()).padStart(2, '0'));
+        $('#durumTarihAy').val(String(suanki.getMonth() + 1).padStart(2, '0'));
+        $('#durumTarihYil').val(suanki.getFullYear());
+        var bugun = yerelTarihMetni(suanki);
+        tarihGuncelle();
+
+        $('#durumTarihGun, #durumTarihAy, #durumTarihYil').on('change', tarihGuncelle);
+
+        function saatDakikaGuncelle() {
+            $('#durumSaat').val($('#durumSaatSaat').val() + ':' + $('#durumSaatDakika').val());
+        }
+
+        function saatSec(saatDegeri) {
+            var parcalar = saatDegeri.split(':');
+            $('#durumSaatSaat').val(parcalar[0]);
+            $('#durumSaatDakika').val(parcalar[1]);
+            saatDakikaGuncelle();
+            $('.secenek-cip[data-saat]').removeClass('secili').filter(function () {
+                return $(this).data('saat') === saatDegeri;
+            }).addClass('secili');
+        }
+
+        $('#durumSaatSaat, #durumSaatDakika').on('change', saatDakikaGuncelle);
+        saatDakikaGuncelle();
+
+        $('.secenek-cip[data-saat]').on('click', function () {
+            saatSec($(this).data('saat'));
+        });
+
+        $('#durumHedefId').on('change', function () {
+            var baslik = $(this).find('option:selected').text();
+            if (/akşam/i.test(baslik)) {
+                saatSec('21:00');
+            } else if (/sabah/i.test(baslik)) {
+                saatSec('08:00');
+            } else if (/öğle/i.test(baslik)) {
+                saatSec('13:00');
+            }
+
+            if (/fırçala/i.test(baslik)) {
+                $('#fircalamaTuruAlani').removeClass('d-none');
+            } else {
+                $('#fircalamaTuruAlani').addClass('d-none');
+                $('#durumFircalamaTuru').val('');
+                $('#fircalamaTuruAlani .secenek-cip').removeClass('secili');
+            }
+        });
+
+        $('#fircalamaTuruAlani .secenek-cip').on('click', function () {
+            $('#fircalamaTuruAlani .secenek-cip').removeClass('secili');
+            $(this).addClass('secili');
+            $('#durumFircalamaTuru').val($(this).data('tur'));
+        });
+
+        $('#notCipGrubu .secenek-cip').on('click', function () {
+            $('#notCipGrubu .secenek-cip').removeClass('secili');
+            $(this).addClass('secili');
+            $('#notAciklama').val($(this).data('metin'));
+
+            var onerilenBaslik = $(this).data('hedef-baslik');
+            if (onerilenBaslik) {
+                $('#notHedefOnerisiMetin').text(onerilenBaslik + ' — ' + $(this).data('hedef-aciklama'));
+                $('#notHedefOnerisi').removeClass('d-none').data('kaynak-cip', $(this));
+            } else {
+                $('#notHedefOnerisi').addClass('d-none');
+            }
+        });
+
+        $('#notHedefOnerisiVazgecBtn').on('click', function () {
+            $('#notHedefOnerisi').addClass('d-none');
+        });
+
+        $('#notHedefOnerisiEkleBtn').on('click', function () {
+            var cip = $('#notHedefOnerisi').data('kaynak-cip');
+            if (!cip) return;
+
+            $(this).prop('disabled', true).text('Ekleniyor...');
+            $.ajax({
+                url: '@Url.Action("HedefEkle", "AgizDisSagligi")',
+                type: 'POST',
+                data: {
+                    Baslik: cip.data('hedef-baslik'),
+                    Aciklama: cip.data('hedef-aciklama'),
+                    PeriyotZaman: cip.data('hedef-periyot-zaman'),
+                    PeriyotSiklik: cip.data('hedef-periyot-siklik'),
+                    OnemDerecesi: cip.data('hedef-onem')
+                },
+                success: function (sonuc) {
+                    if (sonuc.basarili) {
+                        location.reload();
+                    } else {
+                        mesajGoster(sonuc.basarili, sonuc.mesaj);
+                        $('#notHedefOnerisiEkleBtn').prop('disabled', false).text('Hedef Olarak Ekle');
+                    }
+                },
+                error: function () {
+                    $('#notHedefOnerisiEkleBtn').prop('disabled', false).text('Hedef Olarak Ekle');
+                }
+            });
+        });
+
+        $('#hedefBaslikSecim').on('change', function () {
+            var deger = $(this).val();
+            $('#hedefBaslikHata').addClass('d-none');
+            if (deger === '__diger__') {
+                $('#hedefBaslikOzel').removeClass('d-none').prop('required', true).val('').focus();
+            } else {
+                $('#hedefBaslikOzel').addClass('d-none').prop('required', false).val(deger);
+            }
+            periyotEtiketGuncelle();
+        });
+
+        function periyotEtiketGuncelle() {
+            var baslik = $('#hedefBaslikOzel').val() || '';
+            if (/azalt/i.test(baslik)) {
+                $('#hedefPeriyotSiklikEtiket').text('En Fazla (kaç kez)');
+            } else {
+                $('#hedefPeriyotSiklikEtiket').text('Sıklık');
+            }
+        }
+
+        $('#hedefBaslikOzel').on('input', periyotEtiketGuncelle);
+
+        $('#hedefPeriyotZaman').on('change', function () {
+            if ($(this).val() === 'Yılda') {
+                $('#periyotZamanIpucu').text('Örn: "Yılda 2" = 6 ayda bir');
+            } else {
+                $('#periyotZamanIpucu').text('');
+            }
+        });
 
         $('#hedefForm').on('submit', function (e) {
             e.preventDefault();
+            if (!$('#hedefBaslikOzel').val()) {
+                $('#hedefBaslikHata').removeClass('d-none');
+                $('#hedefBaslikSecim').get(0).reportValidity();
+                mesajGoster(false, 'Lütfen bir hedef başlığı seçin ya da kendi başlığınızı yazın.');
+                return;
+            }
+            $('#hedefBaslikHata').addClass('d-none');
             $.ajax({
                 url: '@Url.Action("HedefEkle", "AgizDisSagligi")',
                 type: 'POST',
@@ -206,9 +585,10 @@
                 type: 'POST',
                 data: $(this).serialize(),
                 success: function (sonuc) {
-                    mesajGoster(sonuc.basarili, sonuc.mesaj);
                     if (sonuc.basarili) {
-                        $('#durumForm')[0].reset();
+                        location.reload();
+                    } else {
+                        mesajGoster(sonuc.basarili, sonuc.mesaj);
                     }
                 }
             });
@@ -262,12 +642,31 @@
                 type: 'POST',
                 data: { id: id },
                 success: function (sonuc) {
-                    mesajGoster(sonuc.basarili, sonuc.mesaj);
                     if (sonuc.basarili) {
-                        $('#hedefSatir-' + id).remove();
+                        location.reload();
+                    } else {
+                        mesajGoster(sonuc.basarili, sonuc.mesaj);
                     }
                 }
             });
         }
+
+        $('.not-sil-btn').on('click', function () {
+            var id = $(this).data('id');
+            if (!confirm('Bu notu silmek istediğinize emin misiniz?')) return;
+
+            $.ajax({
+                url: '@Url.Action("NotSil", "AgizDisSagligi")',
+                type: 'POST',
+                data: { id: id },
+                success: function (sonuc) {
+                    if (sonuc.basarili) {
+                        $('#notKarti-' + id).remove();
+                    } else {
+                        mesajGoster(sonuc.basarili, sonuc.mesaj);
+                    }
+                }
+            });
+        });
     </script>
 }

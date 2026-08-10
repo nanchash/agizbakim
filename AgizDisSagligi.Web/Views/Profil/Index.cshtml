@@ -3,18 +3,84 @@
     ViewData["Title"] = "Profil";
 }
 
-<h1>Profil</h1>
+<div class="sayfa-baslik">
+    <span class="simge">👤</span>
+    <h1 class="h3 mb-0">Profil</h1>
+</div>
 
-<dl class="row">
-    <dt class="col-sm-3">Ad Soyad</dt>
-    <dd class="col-sm-9">@Model.AdSoyad</dd>
+<div class="seri-kutusu mb-4">
+    <div class="seri-simge">🔥</div>
+    <div>
+        <div class="seri-deger">@Model.GunlukSeri gün</div>
+        <div class="seri-etiket">
+            @if (Model.GunlukSeri > 0)
+            {
+                <text>Günlük serin devam ediyor — böyle gitsin!</text>
+            }
+            else
+            {
+                <text>Henüz bir serin yok — bugün bir hedefini tamamlayarak başla.</text>
+            }
+        </div>
+    </div>
+</div>
 
-    <dt class="col-sm-3">Mail</dt>
-    <dd class="col-sm-9">@Model.Mail</dd>
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="istatistik-kart">
+            <div class="istatistik-simge">🎯</div>
+            <div>
+                <div class="istatistik-deger">@Model.ToplamHedefSayisi</div>
+                <div class="istatistik-etiket">Toplam Hedef</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="istatistik-kart">
+            <div class="istatistik-simge">✅</div>
+            <div>
+                <div class="istatistik-deger">@Model.ToplamTamamlananSayisi</div>
+                <div class="istatistik-etiket">Tamamlanan Kayıt</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="istatistik-kart">
+            <div class="istatistik-simge">📝</div>
+            <div>
+                <div class="istatistik-deger">@Model.ToplamNotSayisi</div>
+                <div class="istatistik-etiket">Eklenen Not</div>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <dt class="col-sm-3">Doğum Tarihi</dt>
-    <dd class="col-sm-9">@Model.DogumTarihi.ToString("dd.MM.yyyy")</dd>
+<div class="kart mb-4" style="max-width: 560px;">
+    <div class="kart-govde">
+        <dl class="row mb-0">
+            <dt class="col-sm-4">Ad Soyad</dt>
+            <dd class="col-sm-8">@Model.AdSoyad</dd>
 
-    <dt class="col-sm-3">Kayıt Tarihi</dt>
-    <dd class="col-sm-9">@Model.KayitTarihi.ToString("dd.MM.yyyy")</dd>
-</dl>
+            <dt class="col-sm-4">Mail</dt>
+            <dd class="col-sm-8">@Model.Mail</dd>
+
+            <dt class="col-sm-4">Doğum Tarihi</dt>
+            <dd class="col-sm-8">@Model.DogumTarihi.ToString("dd.MM.yyyy")</dd>
+
+            <dt class="col-sm-4">Kayıt Tarihi</dt>
+            <dd class="col-sm-8 mb-0">@Model.KayitTarihi.ToString("dd.MM.yyyy")</dd>
+        </dl>
+    </div>
+</div>
+
+<h2 class="h5 mb-3">Rozetler</h2>
+<div class="rozet-listesi">
+    @foreach (var rozet in Model.Rozetler)
+    {
+        <div class="rozet-karti @(rozet.Kazanildi ? "kazanildi" : "kilitli")">
+            <div class="rozet-simge">@rozet.Simge</div>
+            <div class="rozet-ad">@rozet.Ad</div>
+            <div class="rozet-aciklama">@rozet.Aciklama</div>
+        </div>
+    }
+</div>

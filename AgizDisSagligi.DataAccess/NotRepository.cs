@@ -7,6 +7,9 @@ public class NotRepository : INotRepository
     private readonly AppDbContext _context;
     public NotRepository(AppDbContext context) { _context = context; }
 
+    public Not GetirId(int id) =>
+        _context.Notlar.FirstOrDefault(n => n.Id == id);
+
     public List<Not> ListeleKullaniciIle(int kullaniciId) =>
         _context.Notlar.Where(n => n.KullaniciId == kullaniciId).ToList();
 

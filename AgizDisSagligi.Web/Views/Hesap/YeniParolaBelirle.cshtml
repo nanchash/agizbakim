@@ -3,27 +3,30 @@
     ViewData["Title"] = "Yeni Parola Belirle";
 }
 
-<h1>Yeni Parola Belirle</h1>
+<div class="auth-sarmalayici">
+    <div class="auth-kart">
+        <div class="auth-simge">🔑</div>
+        <h1>Yeni Parola Belirle</h1>
+        <p class="auth-alt-metin">@Model.Mail için yeni bir parola oluşturun.</p>
 
-<div class="row">
-    <div class="col-md-6">
         <form asp-action="YeniParolaBelirle" method="post">
-            <div asp-validation-summary="All" class="text-danger"></div>
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
             <input asp-for="Mail" type="hidden" />
 
             <div class="mb-3">
                 <label class="form-label">Yeni Parola</label>
                 <input asp-for="YeniParola" type="password" class="form-control" />
                 <span asp-validation-for="YeniParola" class="text-danger"></span>
+                <div class="form-text">Büyük-küçük harf ve rakam içermelidir.</div>
             </div>
 
-            <div class="mb-3">
+            <div class="mb-4">
                 <label class="form-label">Yeni Parola Tekrar</label>
                 <input asp-for="YeniParolaTekrar" type="password" class="form-control" />
                 <span asp-validation-for="YeniParolaTekrar" class="text-danger"></span>
             </div>
 
-            <button type="submit" class="btn btn-primary">Parolayı Güncelle</button>
+            <button type="submit" class="btn btn-primary w-100">Parolayı Güncelle</button>
         </form>
     </div>
 </div>
